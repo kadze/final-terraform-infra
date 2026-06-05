@@ -22,7 +22,7 @@ jobs:
     # default settings to apply for all the steps
     defaults:
       run:
-        working-directory: ./roots/devops-project-main
+        working-directory: ./roots/environments/${{ env.ENVIRONMENT_STAGE }}
         shell: bash
     # environment: ${{ (github.ref == 'refs/heads/main' && 'production') || (github.ref == 'refs/heads/staging' && 'staging') || 'dev' }}
     # since production and staging are not ready, deploy only to dev for now
@@ -52,8 +52,8 @@ jobs:
 
       # Generates an execution plan for Terraform
       - name: Terraform Plan
-        run: terraform plan -input=false -var-file=${ENVIRONMENT_STAGE}.tfvars
+        run: terraform plan -input=false
 
       # Build infrastructure according to Terraform configuration files
       - name: Terraform Apply
-        run: terraform apply -auto-approve -input=false -var-file=${ENVIRONMENT_STAGE}.tfvars
+        run: terraform apply -auto-approve -input=false
