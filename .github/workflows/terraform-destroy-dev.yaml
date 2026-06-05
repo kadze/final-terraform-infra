@@ -22,7 +22,7 @@ jobs:
     # default settings to apply for all the steps
     defaults:
       run:
-        working-directory: ./roots/devops-project-main
+        working-directory: ./roots/environments/dev
         shell: bash
     environment: dev
     steps:

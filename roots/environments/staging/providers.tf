@@ -2,8 +2,6 @@ terraform {
   required_version = ">= 1.10"
 
   backend "s3" {
-    bucket       = "terraform-state-ubuntu-dev"
-    key          = "environments/staging/terraform.tfstate"
     region       = "us-east-1"
     use_lockfile = true
   }
@@ -22,7 +20,7 @@ provider "aws" {
   default_tags {
     tags = {
       team        = "ubuntu"
-      environment = "staging"
+      environment = "dev"
     }
   }
 }
