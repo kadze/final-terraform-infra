@@ -1,8 +1,12 @@
 data "aws_caller_identity" "current" {}
 
+#Create role that trusts only tokens from our cluster (with the help of OIDC provider) to assume it. 
+#Only from our service account and our namespace.
+#So this is IAM role for our service account (IRSA)
 resource "aws_iam_role" "alb_controller" {
   name = "alb-controller-irsa-${var.cluster_name}"
 
+  #trust relationship
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [

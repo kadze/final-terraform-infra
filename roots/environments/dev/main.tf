@@ -1,21 +1,9 @@
 # DO NOT REMOVE DUMMY MODULE references and their code, they should remain as examples
 locals {
-  greeting = "Hi"
-
   # EKS cluster built by Story 1.1 — fill in from cluster OIDC endpoint once known
-  cluster_name              = "temporary-eks-cluster-dev"
-  cluster_oidc_issuer_url   = "https://oidc.eks.us-east-1.amazonaws.com/id/CLUSTER_OIDC_ID_DEV"
-  cluster_oidc_provider_arn = "arn:aws:iam::ACCOUNT_ID:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/CLUSTER_OIDC_ID_DEV"
-}
-
-module "module1" {
-  source   = "../../../dummy-module-1"
-  greeting = local.greeting
-}
-
-module "module2" {
-  source             = "../../../dummy-module-2"
-  input_from_module1 = module.module1.greeting_message
+  cluster_name              = "eks-dev"
+  cluster_oidc_issuer_url   = "https://oidc.eks.us-east-1.amazonaws.com/id/C518D5CB1A79656432948AE2225FA67D"
+  cluster_oidc_provider_arn = "arn:aws:iam::383585068161:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/C518D5CB1A79656432948AE2225FA67D"
 }
 
 module "alb_controller_irsa" {
