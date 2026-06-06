@@ -3,8 +3,8 @@ terraform {
 
   backend "s3" {
     region       = "us-east-1"
-    bucket       = "383585068161-state-bucket-dev"         
-    key          = "environments/dev/terraform.tfstate"     
+    bucket       = "383585068161-state-bucket-dev"
+    key          = "environments/dev/terraform.tfstate"
     use_lockfile = true
   }
 
