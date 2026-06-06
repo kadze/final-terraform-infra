@@ -36,3 +36,6 @@ This repository uses a dynamic approach to manage Terraform state files across d
 3. **Terraform Apply** in `main` branch *after PR merge.*
 
 This approach ensures efficient resource management and conflict resolution in a multi-branch, multi-user Terraform environment.
+## Working with AI — your memoir (deliverable)
+
+This repo includes the memoir template at [`docs/working-with-ai-template.md`](docs/working-with-ai-template.md). Copy it into your story folder as `WORKING-WITH-AI.md` and fill it in **as you work** — it is a required deliverable for your primary story, and the artifact that pays you back at interview time.
