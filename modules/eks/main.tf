@@ -21,7 +21,7 @@ resource "aws_eks_cluster" "main" {
 }
 
 resource "aws_iam_role" "eks_cluster" {
-  name = "${var.cluster_name}-cluster-role"
+  name = "${var.cluster_name}-eks-cluster-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -33,7 +33,7 @@ resource "aws_iam_role" "eks_cluster" {
   })
 
   tags = {
-    Name      = "${var.cluster_name}-cluster-role"
+    Name      = "${var.cluster_name}-eks-cluster-role"
     component = "platform-tools"
   }
 }
@@ -64,7 +64,7 @@ resource "aws_security_group" "eks_cluster" {
 
 
 resource "aws_iam_role" "eks_nodes" {
-  name = "${var.cluster_name}-node-role"
+  name = "${var.cluster_name}-eks-node-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -76,7 +76,7 @@ resource "aws_iam_role" "eks_nodes" {
   })
 
   tags = {
-    Name      = "${var.cluster_name}-node-role"
+    Name      = "${var.cluster_name}-eks-node-role"
     component = "platform-tools"
   }
 }
