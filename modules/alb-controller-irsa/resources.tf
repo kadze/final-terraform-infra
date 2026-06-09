@@ -59,6 +59,7 @@ resource "aws_iam_policy" "alb_controller" {
           "ec2:DescribeSecurityGroups",
           "ec2:DescribeSubnets",
           "ec2:DescribeTags",
+          "ec2:DescribeRouteTables",
           "ec2:DescribeVpcPeeringConnections",
           "ec2:DescribeVpcs",
           "ec2:GetCoipPoolUsage"
