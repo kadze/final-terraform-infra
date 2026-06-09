@@ -6,6 +6,10 @@ data "aws_caller_identity" "current" {}
 resource "aws_iam_role" "alb_controller" {
   name = "alb-controller-irsa-${var.cluster_name}"
 
+  tags = {
+    component = "platform-tools"
+  }
+
   #trust relationship
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -30,6 +34,10 @@ resource "aws_iam_role" "alb_controller" {
 resource "aws_iam_policy" "alb_controller" {
   name        = "alb-controller-policy-${var.cluster_name}"
   description = "Least-privilege policy for AWS Load Balancer Controller (HTTP-only, Gateway API)"
+
+  tags = {
+    component = "platform-tools"
+  }
 
   policy = jsonencode({
     Version = "2012-10-17"
