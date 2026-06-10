@@ -6,7 +6,7 @@ variable "cluster_name" {
 variable "cluster_version" {
   description = "Kubernetes version. Verify 'one behind latest' on deploy day via aws eks describe-addon-versions."
   type        = string
-  default     = "1.32"
+  default     = "1.35"
 }
 
 variable "vpc_id" {
