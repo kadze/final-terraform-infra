@@ -1,6 +1,6 @@
 locals {
   github_org  = "312school"
-  github_repo = "terraform-infra-25c-ubuntu"
+  github_repo = "kadze-terraform-infra-25c-ubuntu"
   environment = "dev"
   oidc_host   = "token.actions.githubusercontent.com"
 }
