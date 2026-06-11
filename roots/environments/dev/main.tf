@@ -2,7 +2,7 @@
 locals {
   # EKS cluster built by Story 1.1 — fill in from cluster OIDC endpoint once known
   cluster_name              = "ubuntu-dev-cluster"
-  cluster_oidc_issuer_url   = "https://oidc.eks.us-east-1.amazonaws.com/id/287337B7769634D2DD2BA62AD053165D" #TODO (this code is different in different clusters)
+  cluster_oidc_issuer_url   = "https://oidc.eks.us-east-1.amazonaws.com/id/287337B7769634D2DD2BA62AD053165D"                                 #TODO (this code is different in different clusters)
   cluster_oidc_provider_arn = "arn:aws:iam::383585068161:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/287337B7769634D2DD2BA62AD053165D" #TODO -||-
 }
 
