@@ -1,7 +1,7 @@
 # DO NOT REMOVE DUMMY MODULE references and their code, they should remain as examples
 locals {
   # EKS cluster built by Story 1.1 — fill in from cluster OIDC endpoint once known
-  cluster_name              = "eks-dev"
+  cluster_name              = "ubuntu-dev-cluster"
   cluster_oidc_issuer_url   = "https://oidc.eks.us-east-1.amazonaws.com/id/C518D5CB1A79656432948AE2225FA67D"
   cluster_oidc_provider_arn = "arn:aws:iam::383585068161:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/C518D5CB1A79656432948AE2225FA67D"
 }
