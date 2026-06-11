@@ -6,6 +6,23 @@ locals {
   cluster_oidc_provider_arn = "arn:aws:iam::383585068161:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/287337B7769634D2DD2BA62AD053165D" #TODO -||-
 }
 
+# ELBv2 interface endpoint — ALB controller pods are on IPv6-only nodes with no NAT.
+# Without this, CreateLoadBalancer/DescribeLoadBalancers calls hit the public IPv4
+# endpoint and hang indefinitely. Story 1.1 added EC2/ECR/STS endpoints; this one
+# was missed and is needed for Story 1.3 Gateway API provisioning.
+resource "aws_vpc_endpoint" "elbv2" {
+  vpc_id              = "vpc-0d334d8b5fab0b7c0"
+  service_name        = "com.amazonaws.us-east-1.elasticloadbalancing"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = ["subnet-0299b782f011accfc", "subnet-03a7eba299f50f227", "subnet-0bd5c6f115f174534"]
+  security_group_ids  = ["sg-003333d905bba7867"]
+  private_dns_enabled = true
+
+  tags = {
+    component = "platform-tools"
+  }
+}
+
 module "alb_controller_irsa" {
   source = "../../../modules/alb-controller-irsa"
 
