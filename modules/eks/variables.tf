@@ -36,10 +36,10 @@ variable "asg_min_size" {
 
 variable "asg_max_size" {
   type    = number
-  default = 5
+  default = 3
 }
 
 variable "asg_desired_size" {
   type    = number
-  default = 3
+  default = 1
 }
