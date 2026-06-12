@@ -65,6 +65,10 @@ resource "aws_eks_cluster" "main" {
     ip_family = "ipv6"
   }
 
+  access_config {
+    authentication_mode = "API"
+  }
+
   depends_on = [aws_iam_role_policy_attachment.cluster_policy]
 
   tags = {

@@ -12,7 +12,7 @@ resource "aws_eks_addon" "vpc_cni" {
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
-  depends_on = [aws_autoscaling_group.nodes]
+  depends_on = [aws_autoscaling_group.nodes, aws_eks_access_entry.nodes]
 }
 
 resource "aws_eks_addon" "kube_proxy" {
@@ -22,7 +22,7 @@ resource "aws_eks_addon" "kube_proxy" {
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
-  depends_on = [aws_autoscaling_group.nodes]
+  depends_on = [aws_autoscaling_group.nodes, aws_eks_access_entry.nodes]
 }
 
 resource "aws_eks_addon" "coredns" {
@@ -32,7 +32,7 @@ resource "aws_eks_addon" "coredns" {
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
-  depends_on = [aws_autoscaling_group.nodes]
+  depends_on = [aws_autoscaling_group.nodes, aws_eks_access_entry.nodes]
 }
 
 resource "aws_eks_addon" "ebs_csi_driver" {
@@ -45,5 +45,5 @@ resource "aws_eks_addon" "ebs_csi_driver" {
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
-  depends_on = [aws_autoscaling_group.nodes]
+  depends_on = [aws_autoscaling_group.nodes, aws_eks_access_entry.nodes]
 }
