@@ -1,7 +1,7 @@
 module "vpc" {
   source = "../../../modules/vpc"
 
-  vpc_cidr    = "10.25.0.0/16"
+  vpc_cidr     = "10.25.0.0/16"
   cluster_name = var.cluster_name
   environment  = var.environment
 
