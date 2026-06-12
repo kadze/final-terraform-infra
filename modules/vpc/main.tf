@@ -66,9 +66,10 @@ resource "aws_subnet" "private" {
   ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, count.index + 3)
   availability_zone = var.azs[count.index]
 
-  map_public_ip_on_launch         = false
-  assign_ipv6_address_on_creation = true
-  ipv6_native                     = true
+  map_public_ip_on_launch                         = false
+  assign_ipv6_address_on_creation                 = true
+  ipv6_native                                     = true
+  enable_resource_name_dns_aaaa_record_on_launch  = true
 
   tags = {
     Name                                        = "${local.name}-private-${count.index + 1}"
