@@ -7,7 +7,7 @@ resource "aws_launch_template" "nodes" {
   name_prefix = "${var.cluster_name}-nodes-"
 
   image_id      = data.aws_ssm_parameter.eks_ami.value
-  instance_type = "t3.micro"
+  instance_type = "t3.medium"
 
   iam_instance_profile {
     name = aws_iam_instance_profile.nodes.name
@@ -82,8 +82,8 @@ resource "aws_autoscaling_group" "nodes" {
       }
 
       # t3a.medium as a spot fallback — same class, Graviton pricing
-      override { instance_type = "t3.micro" }
-      override { instance_type = "t3a.micro" }
+      override { instance_type = "t3.medium" }
+      override { instance_type = "t3a.medium" }
     }
   }
 
