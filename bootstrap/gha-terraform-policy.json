@@ -65,6 +65,12 @@
       ]
     },
     {
+      "Sid": "SSM",
+      "Effect": "Allow",
+      "Action": ["ssm:GetParameter"],
+      "Resource": "arn:aws:ssm:*::parameter/aws/service/*"
+    },
+    {
       "Sid": "Logs",
       "Effect": "Allow",
       "Action": [
