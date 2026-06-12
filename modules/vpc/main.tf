@@ -57,19 +57,18 @@ resource "aws_subnet" "public" {
   }
 }
 
-# Private subnets — IPv6-primary, nodes only.
-# ipv6_native = true: instances get IPv6 addresses only, no public IPv4.
+# Private subnets — dual-stack, nodes only.
+# No public IPv4 on launch; IPv6 assigned so pods get IPv6 addresses (EKS ip_family=ipv6).
 resource "aws_subnet" "private" {
   count = 3
 
   vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidrs[count.index]
   ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, count.index + 3)
   availability_zone = var.azs[count.index]
 
-  map_public_ip_on_launch                         = false
-  assign_ipv6_address_on_creation                 = true
-  ipv6_native                                     = true
-  enable_resource_name_dns_aaaa_record_on_launch  = true
+  map_public_ip_on_launch         = false
+  assign_ipv6_address_on_creation = true
 
   tags = {
     Name                                        = "${local.name}-private-${count.index + 1}"
