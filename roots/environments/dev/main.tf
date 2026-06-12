@@ -11,11 +11,11 @@ locals {
 # endpoint and hang indefinitely. Story 1.1 added EC2/ECR/STS endpoints; this one
 # was missed and is needed for Story 1.3 Gateway API provisioning.
 resource "aws_vpc_endpoint" "elbv2" {
-  vpc_id              = "vpc-0d334d8b5fab0b7c0"
+  vpc_id              = "vpc-029dc342a8deff9eb"
   service_name        = "com.amazonaws.us-east-1.elasticloadbalancing"
   vpc_endpoint_type   = "Interface"
-  subnet_ids          = ["subnet-0299b782f011accfc", "subnet-03a7eba299f50f227", "subnet-0bd5c6f115f174534"]
-  security_group_ids  = ["sg-003333d905bba7867"]
+  subnet_ids          = ["subnet-0f8a5338046f52c43", "subnet-0cc6cd5fa8c456023", "subnet-0453b7aee9200d984"]
+  security_group_ids  = ["sg-0a9cb0a8447451f53"]
   private_dns_enabled = true
 
   tags = {
