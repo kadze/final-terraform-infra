@@ -43,10 +43,37 @@ resource "aws_iam_role_policy_attachment" "nodes_ecr_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-# IPv6-specific CNI policy — use this instead of AmazonEKS_CNI_Policy for IPv6 clusters
+# AWS doesn't pre-create this policy — must be created once per account for IPv6 clusters
+resource "aws_iam_policy" "cni_ipv6" {
+  name        = "AmazonEKS_CNI_IPv6_Policy"
+  description = "EKS CNI plugin permissions for IPv6 clusters"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:AssignIpv6Addresses",
+          "ec2:DescribeInstances",
+          "ec2:DescribeTags",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DescribeInstanceTypes"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["ec2:CreateTags"]
+        Resource = "arn:aws:ec2:*:*:network-interface/*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy_attachment" "nodes_cni_ipv6_policy" {
   role       = aws_iam_role.nodes.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_IPv6_Policy"
+  policy_arn = aws_iam_policy.cni_ipv6.arn
 }
 
 # EBS CSI driver — attached at node level for now; Story 1.2 will move to IRSA

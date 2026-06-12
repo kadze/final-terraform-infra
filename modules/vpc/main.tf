@@ -63,7 +63,6 @@ resource "aws_subnet" "private" {
   count = 3
 
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.private_subnet_cidrs[count.index]
   ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, count.index + 3)
   availability_zone = var.azs[count.index]
 
