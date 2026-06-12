@@ -42,6 +42,7 @@
         "iam:GetPolicy",
         "iam:GetPolicyVersion",
         "iam:ListPolicyVersions",
+        "iam:TagPolicy",
         "iam:CreateOpenIDConnectProvider",
         "iam:GetOpenIDConnectProvider",
         "iam:DeleteOpenIDConnectProvider",
