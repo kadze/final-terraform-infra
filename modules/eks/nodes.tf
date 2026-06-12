@@ -20,9 +20,10 @@ resource "aws_launch_template" "nodes" {
 
   # AL2023 nodeadm bootstrap — joins the cluster and configures kubelet
   user_data = base64encode(templatefile("${path.module}/userdata.tpl", {
-    cluster_name     = aws_eks_cluster.main.name
-    cluster_endpoint = aws_eks_cluster.main.endpoint
-    cluster_ca       = aws_eks_cluster.main.certificate_authority[0].data
+    cluster_name         = aws_eks_cluster.main.name
+    cluster_endpoint     = aws_eks_cluster.main.endpoint
+    cluster_ca           = aws_eks_cluster.main.certificate_authority[0].data
+    cluster_service_cidr = aws_eks_cluster.main.kubernetes_network_config[0].service_ipv6_cidr
   }))
 
   metadata_options {
