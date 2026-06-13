@@ -28,4 +28,4 @@ override.tf.json
 terraform.rc
 
 CLAUDE.md
-project-context.mdd
+project-context.md
