@@ -133,11 +133,71 @@ Root cause: `nodeadm` calls the EC2 API during bootstrap to fetch instance metad
 
 ---
 
+## 2026-06-12 (continued) — Node bootstrap fix, cluster successfully deployed
+
+### nodeadm fatal: "CIDR is missing in cluster configuration"
+After adding VPC endpoints, nodes could reach the EC2 API but still didn't join. Console output revealed:
+
+```
+nodeadm[2066]: fatal cli/main.go:35 Command failed {"error": "CIDR is missing in cluster configuration"}
+```
+
+The `NodeConfig` spec was missing the required `cidr` field. For IPv6 clusters nodeadm needs the cluster's service IPv6 CIDR to configure kubelet's network settings. The service CIDR is per-cluster (assigned at create time, e.g. `fdd1:8511:c103::/108`) so it must be read dynamically.
+
+**Fix:** Added `cidr: ${cluster_service_cidr}` to `userdata.tpl` and passed `cluster_service_cidr = aws_eks_cluster.main.kubernetes_network_config[0].service_ipv6_cidr` in `nodes.tf`.
+
+### Stale Terraform state locks from cancelled GHA runs
+Cancelling a GHA workflow mid-apply leaves a `.tflock` file in S3 that blocks subsequent runs with `PreconditionFailed: At least one of the pre-conditions you specified did not hold`.
+
+**Fix:** Delete the lock file manually:
+```
+aws s3 rm s3://381492277294-state-bucket-dev/feature/kadze-1.1-cluster-migration.tfstate.tflock
+```
+
+Happened twice during this session. No data loss — the lock is just a marker file, the state itself is intact.
+
+### Addon 409 conflicts from partial applies
+After a cancelled run that had created addons in AWS but not written them to state, the next apply hit `ResourceInUseException: Addon already exists` for all 4 addons. The previous addons were DEGRADED anyway (pre-CIDR fix), so deleted them via CLI:
+```
+for addon in vpc-cni kube-proxy coredns aws-ebs-csi-driver; do
+  aws eks delete-addon --cluster-name eks-kadze-dev --addon-name $addon
+done
+```
+
+### ASG reduced to 1 node for cost savings
+Changed `asg_desired_size` default from 3 → 1, `asg_max_size` from 5 → 3. Story requires t3.medium-class nodes which cost ~$0.047/hr spot. Running 3 during debugging was unnecessary. Can be restored to 3 when validating the full story.
+
+### kubectl access — SSO role not in access entries
+The management SSO role (`AWSReservedSSO_AdministratorAccess_08cbdd74d1ed810f`) is not in the Terraform-managed access entries. Added manually via CLI with `AmazonEKSClusterAdminPolicy` so kubectl works from the laptop. **Not in Terraform state** — needs to be re-added after each destroy.
+
+### Cluster successfully deployed ✓
+First fully successful GHA apply. Verified:
+
+```
+NAME                          STATUS   ROLES   AGE   VERSION
+ip-10-25-132-0.ec2.internal   Ready    <none>  7m    v1.35.5-eks-3385e9b
+```
+
+Node internal IP is IPv6 (`2600:1f18:399c:a403:e8ad:244f:8372:3935`). All pod IPs are IPv6:
+
+| Pod | IP |
+|---|---|
+| coredns (×2) | `2600:1f18:399c:a403:8838::2`, `::3` |
+| ebs-csi-controller (×2) | `2600:1f18:399c:a403:8838::`, `::1` |
+| ebs-csi-node | `2600:1f18:399c:a403:8838::4` |
+| aws-node (vpc-cni) | `2600:1f18:399c:a403:e8ad:244f:8372:3935` |
+| kube-proxy | `2600:1f18:399c:a403:e8ad:244f:8372:3935` |
+
+All addons ACTIVE. vpc-cni and kube-proxy first (DaemonSets tolerate not-ready taint), then coredns and ebs-csi-driver once the node reached Ready.
+
+---
+
 ## Open items / next session
 
-- [ ] Confirm GHA run passes with VPC endpoints in place
-- [ ] Verify nodes join cluster and addons become ACTIVE
-- [ ] Verify `kubectl get nodes` shows 3 nodes, mixed spot/on-demand
-- [ ] Verify pod IPs are IPv6
+- [ ] Restore ASG to 3 nodes and verify mixed spot/on-demand
+- [ ] Add SSO admin access entry to Terraform (so kubectl works without manual step after destroy)
+- [ ] Verify pod-to-pod IPv6 networking (`curl -6` from a pod)
 - [ ] Document IPv6 reachability gaps in IPv6 decisions doc
 - [ ] Write migration runbook
+- [ ] Fill in destroy workflow (`terraform-destroy-dev.yaml`)
+- [ ] Add `deploy-platform-tools.yaml` cluster login wiring
