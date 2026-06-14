@@ -19,6 +19,11 @@ output "oidc_issuer" {
   value       = aws_eks_cluster.main.identity[0].oidc[0].issuer
 }
 
+output "oidc_provider_arn" {
+  description = "ARN of the IAM OIDC provider — passed to IRSA modules"
+  value       = aws_iam_openid_connect_provider.eks.arn
+}
+
 output "node_role_arn" {
   value = aws_iam_role.nodes.arn
 }

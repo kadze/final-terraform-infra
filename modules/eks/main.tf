@@ -77,6 +77,17 @@ resource "aws_eks_cluster" "main" {
   }
 }
 
+# OIDC provider for IRSA — needed by Story 1.3 (ALB controller), 1.4 (Karpenter), 1.5
+data "tls_certificate" "eks_oidc" {
+  url = aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
+
+resource "aws_iam_openid_connect_provider" "eks" {
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [data.tls_certificate.eks_oidc.certificates[0].sha1_fingerprint]
+  url             = aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
+
 # ── EKS access entries ────────────────────────────────────────────────────────
 
 # Node role — EC2_LINUX type handles node join without aws-auth ConfigMap

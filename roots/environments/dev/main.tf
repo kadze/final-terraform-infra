@@ -30,3 +30,11 @@ module "eks" {
   private_subnet_ids = module.vpc.private_subnet_ids
   admin_role_arns    = var.admin_role_arns
 }
+
+module "alb_controller_irsa" {
+  source = "../../../modules/alb-controller-irsa"
+
+  cluster_name              = module.eks.cluster_name
+  cluster_oidc_issuer_url   = module.eks.oidc_issuer
+  cluster_oidc_provider_arn = module.eks.oidc_provider_arn
+}

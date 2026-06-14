@@ -184,3 +184,14 @@ resource "aws_vpc_endpoint" "s3" {
   route_table_ids   = [aws_route_table.private.id]
   tags              = { Name = "${local.name}-s3" }
 }
+
+# ELBv2 — ALB controller calls CreateLoadBalancer/DescribeLoadBalancers; no IPv6 public endpoint
+resource "aws_vpc_endpoint" "elbv2" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.us-east-1.elasticloadbalancing"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.endpoints.id]
+  private_dns_enabled = true
+  tags                = { Name = "${local.name}-elbv2" }
+}
