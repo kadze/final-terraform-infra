@@ -122,6 +122,7 @@ resource "aws_iam_policy" "alb_controller" {
           "elasticloadbalancing:RemoveListenerCertificates",
           "elasticloadbalancing:RemoveTags",
           "elasticloadbalancing:SetIpAddressType",
+          "elasticloadbalancing:SetRulePriorities",
           "elasticloadbalancing:SetSecurityGroups",
           "elasticloadbalancing:SetSubnets",
           "elasticloadbalancing:SetWebAcl"
