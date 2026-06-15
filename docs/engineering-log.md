@@ -192,12 +192,94 @@ All addons ACTIVE. vpc-cni and kube-proxy first (DaemonSets tolerate not-ready t
 
 ---
 
+---
+
+## 2026-06-14 — Story 1.3: ALB controller IRSA, Gateway API programmed
+
+### SSO admin role and SharedGHATerraformRole added to Terraform access entries
+
+The SSO admin role added manually on 2026-06-12 was not in Terraform state — it would be lost on every destroy. Added it properly to `admin_role_arns` in `dev.auto.tfvars`, along with `SharedGHATerraformRole` (used by the `kadze-platform-tools` GHA). The EKS module creates `aws_eks_access_entry` + `aws_eks_access_policy_association` (`AmazonEKSClusterAdminPolicy`) for each entry.
+
+`dev.auto.tfvars` now:
+```hcl
+admin_role_arns = [
+  "arn:aws:iam::381492277294:role/gha-terraform-bootstrap-dev",
+  "arn:aws:iam::381492277294:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_08cbdd74d1ed810f",
+  "arn:aws:iam::381492277294:role/SharedGHATerraformRole",
+]
+```
+
+### STS VPC Interface endpoint — required for IRSA on IPv6-only nodes
+
+ALB controller uses IRSA (`AssumeRoleWithWebIdentity`) to assume `alb-controller-irsa-eks-kadze-dev`. The STS public endpoint (`sts.amazonaws.com`) is IPv4-only. Private nodes with no NAT cannot reach it, causing IRSA to time out.
+
+Fixed by adding a VPC Interface endpoint for STS in `modules/vpc/main.tf`:
+```hcl
+resource "aws_vpc_endpoint" "sts" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.us-east-1.sts"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.endpoints.id]
+  private_dns_enabled = true
+  tags = { Name = "${local.name}-sts" }
+}
+```
+
+This joins the existing EC2 / ECR API / ECR DKR / S3 endpoints established in Story 1.1.
+
+**Note:** Every IAM role assumption from a private IPv6-only node requires either a VPC STS endpoint or NAT. This is a hard dependency for IRSA-based controllers (ALB controller, EBS CSI, etc).
+
+### Hardcoded VPC ID in values.yaml — root cause of "0 subnets found"
+
+The `values.yaml` for the ALB controller Helm chart had `vpcId` hardcoded to the VPC from a previous cluster build. After `terraform destroy` + re-apply, the cluster gets a new VPC with a new ID. The old ID was `vpc-029dc342a8deff9eb` — this VPC no longer existed.
+
+Effect: the tag-based `loadBalancerSubnetsSelector` (`kubernetes.io/role/elb: "1"`) passes all matching subnets through a VPC scope filter. With the wrong `vpcId`, the filter returned 0 subnets. Controller logs: `unable to resolve at least one subnet. Evaluated 0 subnets`.
+
+**Fix:** Removed `clusterName` and `vpcId` from `values.yaml` entirely. Both are now injected at deploy time via `--set` in the workflow:
+```yaml
+- name: Install AWS Load Balancer Controller
+  run: |
+    CLUSTER_NAME="eks-kadze-${ENVIRONMENT_STAGE}"
+    VPC_ID=$(aws eks describe-cluster --name "$CLUSTER_NAME" \
+      --query 'cluster.resourcesVpcConfig.vpcId' --output text)
+    helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
+      --version 3.3.0 \
+      --namespace kube-system \
+      --values aws-load-balancer-controller/values.yaml \
+      --set clusterName="$CLUSTER_NAME" \
+      --set vpcId="$VPC_ID" \
+      --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=${{ vars.ALB_CONTROLLER_IAM_ROLE_ARN }} \
+      --wait
+```
+
+This makes the deployment cluster-agnostic — no manual update needed after a destroy/rebuild.
+
+### Gateway `PROGRAMMED: True` confirmed
+
+After the VPC ID fix and STS endpoint addition, the Gateway reached `PROGRAMMED: True` at ~4m with the tag-based subnet selector in place. ALB address: `k8s-platform-teamgate-50838e249e-1643367172.us-east-1.elb.amazonaws.com`.
+
+The `loadBalancerSubnetsSelector` mechanism is confirmed working. Tag `kubernetes.io/role/elb=1` on the 3 public subnets is sufficient — no hardcoded subnet IDs required.
+
+### Key architecture reminder: parametersRef is mandatory
+
+Gateway controller ignores `LoadBalancerConfiguration` entirely unless `gateway.yaml` has:
+```yaml
+spec:
+  infrastructure:
+    parametersRef:
+      group: gateway.k8s.aws
+      kind: LoadBalancerConfiguration
+      name: team-gateway
+```
+Without this, the controller falls back to `ResolveViaDiscovery`, picks up private subnets, and the ALB creation fails or produces an internal-facing LB.
+
+---
+
 ## Open items / next session
 
 - [ ] Restore ASG to 3 nodes and verify mixed spot/on-demand
-- [ ] Add SSO admin access entry to Terraform (so kubectl works without manual step after destroy)
 - [ ] Verify pod-to-pod IPv6 networking (`curl -6` from a pod)
-- [ ] Document IPv6 reachability gaps in IPv6 decisions doc
+- [ ] Document IPv6 reachability gaps in IPv6 decisions doc (STS endpoint now part of the list)
 - [ ] Write migration runbook
 - [ ] Fill in destroy workflow (`terraform-destroy-dev.yaml`)
-- [ ] Add `deploy-platform-tools.yaml` cluster login wiring
