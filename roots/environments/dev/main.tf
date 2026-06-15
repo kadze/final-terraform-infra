@@ -38,3 +38,11 @@ module "alb_controller_irsa" {
   cluster_oidc_issuer_url   = module.eks.oidc_issuer
   cluster_oidc_provider_arn = module.eks.oidc_provider_arn
 }
+
+module "grafana_cloudwatch_irsa" {
+  source = "../../../modules/grafana-cloudwatch-irsa"
+
+  cluster_name              = module.eks.cluster_name
+  cluster_oidc_issuer_url   = module.eks.oidc_issuer
+  cluster_oidc_provider_arn = module.eks.oidc_provider_arn
+}
