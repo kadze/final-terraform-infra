@@ -10,4 +10,5 @@ environment  = "dev"
 admin_role_arns = [
   "arn:aws:iam::381492277294:role/gha-terraform-bootstrap-dev",
   "arn:aws:iam::381492277294:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_08cbdd74d1ed810f",
+  "arn:aws:iam::381492277294:role/SharedGHATerraformRole",
 ]
