@@ -48,18 +48,32 @@ module "grafana_cloudwatch_irsa" {
 }
 
 # SharedGHATerraformRole is managed by Story 1.2 — we only attach an inline policy
-# so the platform-tools GHA workflow can read Grafana credentials from SSM.
-resource "aws_iam_role_policy" "shared_gha_ssm_grafana" {
-  name = "ssm-grafana-params-${var.environment}"
+# so the platform-tools GHA workflow can read SSM params and update Route53 DNS.
+# Route53 upsert is used instead of external-dns (Story 1.5 will replace this).
+resource "aws_iam_role_policy" "shared_gha_platform_tools" {
+  name = "platform-tools-ops-${var.environment}"
   role = "SharedGHATerraformRole"
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Sid      = "SSMGrafanaParams"
-      Effect   = "Allow"
-      Action   = ["ssm:GetParameter"]
-      Resource = "arn:aws:ssm:us-east-1:381492277294:parameter/eks-kadze-${var.environment}/*"
-    }]
+    Statement = [
+      {
+        Sid      = "SSMGrafanaParams"
+        Effect   = "Allow"
+        Action   = ["ssm:GetParameter"]
+        Resource = "arn:aws:ssm:us-east-1:381492277294:parameter/eks-kadze-${var.environment}/*"
+      },
+      {
+        Sid    = "Route53GrafanaDNS"
+        Effect = "Allow"
+        Action = [
+          "route53:ChangeResourceRecordSets",
+          "route53:ListHostedZones",
+          "route53:ListHostedZonesByName",
+          "route53:ListResourceRecordSets",
+        ]
+        Resource = "*"
+      }
+    ]
   })
 }
