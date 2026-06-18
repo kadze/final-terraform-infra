@@ -46,3 +46,20 @@ module "grafana_cloudwatch_irsa" {
   cluster_oidc_issuer_url   = module.eks.oidc_issuer
   cluster_oidc_provider_arn = module.eks.oidc_provider_arn
 }
+
+# SharedGHATerraformRole is managed by Story 1.2 — we only attach an inline policy
+# so the platform-tools GHA workflow can read Grafana credentials from SSM.
+resource "aws_iam_role_policy" "shared_gha_ssm_grafana" {
+  name = "ssm-grafana-params-${var.environment}"
+  role = "SharedGHATerraformRole"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid      = "SSMGrafanaParams"
+      Effect   = "Allow"
+      Action   = ["ssm:GetParameter"]
+      Resource = "arn:aws:ssm:us-east-1:381492277294:parameter/eks-kadze-${var.environment}/*"
+    }]
+  })
+}
