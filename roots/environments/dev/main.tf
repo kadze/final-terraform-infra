@@ -47,6 +47,60 @@ module "grafana_cloudwatch_irsa" {
   cluster_oidc_provider_arn = module.eks.oidc_provider_arn
 }
 
+module "cert_manager_irsa" {
+  source = "../../../modules/cert-manager-irsa"
+
+  cluster_name              = module.eks.cluster_name
+  cluster_oidc_issuer_url   = module.eks.oidc_issuer
+  cluster_oidc_provider_arn = module.eks.oidc_provider_arn
+  hosted_zone_id            = "Z07170741J23D2RIICAXK"
+}
+
+module "external_dns_irsa" {
+  source = "../../../modules/external-dns-irsa"
+
+  cluster_name              = module.eks.cluster_name
+  cluster_oidc_issuer_url   = module.eks.oidc_issuer
+  cluster_oidc_provider_arn = module.eks.oidc_provider_arn
+  hosted_zone_id            = "Z07170741J23D2RIICAXK"
+}
+
+module "secrets_csi_irsa_versus" {
+  source = "../../../modules/secrets-csi-irsa"
+
+  cluster_name              = module.eks.cluster_name
+  cluster_oidc_issuer_url   = module.eks.oidc_issuer
+  cluster_oidc_provider_arn = module.eks.oidc_provider_arn
+  app_name                  = "versus"
+  namespace                 = "versus"
+  service_account_name      = "versus"
+  secret_path_prefix        = "versus/"
+}
+
+module "secrets_csi_irsa_proshop" {
+  source = "../../../modules/secrets-csi-irsa"
+
+  cluster_name              = module.eks.cluster_name
+  cluster_oidc_issuer_url   = module.eks.oidc_issuer
+  cluster_oidc_provider_arn = module.eks.oidc_provider_arn
+  app_name                  = "proshop"
+  namespace                 = "proshop"
+  service_account_name      = "proshop"
+  secret_path_prefix        = "proshop/"
+}
+
+module "secrets_csi_irsa_weather" {
+  source = "../../../modules/secrets-csi-irsa"
+
+  cluster_name              = module.eks.cluster_name
+  cluster_oidc_issuer_url   = module.eks.oidc_issuer
+  cluster_oidc_provider_arn = module.eks.oidc_provider_arn
+  app_name                  = "weather"
+  namespace                 = "weather"
+  service_account_name      = "weather"
+  secret_path_prefix        = "weather/"
+}
+
 # SharedGHATerraformRole is managed by Story 1.2 — we only attach an inline policy
 # so the platform-tools GHA workflow can read SSM params and update Route53 DNS.
 # Route53 upsert is used instead of external-dns (Story 1.5 will replace this).
