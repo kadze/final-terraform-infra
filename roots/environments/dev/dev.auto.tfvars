@@ -1,6 +1,6 @@
 cluster_name   = "eks-kadze-dev"
 hosted_zone_id = "Z07170741J23D2RIICAXK"
-environment  = "dev"
+environment    = "dev"
 
 # Fill in after running bootstrap:
 #   cd bootstrap && terraform apply
