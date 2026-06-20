@@ -53,7 +53,7 @@ module "cert_manager_irsa" {
   cluster_name              = module.eks.cluster_name
   cluster_oidc_issuer_url   = module.eks.oidc_issuer
   cluster_oidc_provider_arn = module.eks.oidc_provider_arn
-  hosted_zone_id            = "Z07170741J23D2RIICAXK"
+  hosted_zone_id            = var.hosted_zone_id
 }
 
 module "external_dns_irsa" {
@@ -62,7 +62,7 @@ module "external_dns_irsa" {
   cluster_name              = module.eks.cluster_name
   cluster_oidc_issuer_url   = module.eks.oidc_issuer
   cluster_oidc_provider_arn = module.eks.oidc_provider_arn
-  hosted_zone_id            = "Z07170741J23D2RIICAXK"
+  hosted_zone_id            = var.hosted_zone_id
 }
 
 module "secrets_csi_irsa_versus" {
