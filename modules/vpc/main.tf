@@ -123,7 +123,9 @@ resource "aws_route_table" "public" {
   }
 }
 
-# Private route table — EIGW for native IPv6 egress; NAT64 route added when enable_nat64=true.
+# Private route table — EIGW for native IPv6; NAT64 route added inline when enable_nat64=true.
+# Must use inline route blocks (not separate aws_route resources) — Terraform treats inline
+# routes as authoritative and would delete any separately managed routes on the same table.
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
@@ -132,19 +134,20 @@ resource "aws_route_table" "private" {
     egress_only_gateway_id = aws_egress_only_internet_gateway.main.id
   }
 
+  dynamic "route" {
+    for_each = var.enable_nat64 ? [1] : []
+    content {
+      # Well-Known Prefix: DNS64 synthesises IPv4-only addresses here so IPv6-only
+      # nodes can reach them via the NAT gateway (NAT64 translation).
+      ipv6_cidr_block = "64:ff9b::/96"
+      nat_gateway_id  = aws_nat_gateway.main[0].id
+    }
+  }
+
   tags = {
     Name        = "${local.name}-private-rt"
     Environment = var.environment
   }
-}
-
-# NAT64 route — sends the Well-Known Prefix (IPv4-mapped IPv6) to the NAT gateway.
-# DNS64 on the private subnets synthesizes AAAA in this prefix for IPv4-only hostnames.
-resource "aws_route" "private_nat64" {
-  count                       = var.enable_nat64 ? 1 : 0
-  route_table_id              = aws_route_table.private.id
-  destination_ipv6_cidr_block = "64:ff9b::/96"
-  nat_gateway_id              = aws_nat_gateway.main[0].id
 }
 
 resource "aws_route_table_association" "public" {
