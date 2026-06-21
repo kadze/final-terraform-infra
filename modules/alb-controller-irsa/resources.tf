@@ -130,6 +130,16 @@ resource "aws_iam_policy" "alb_controller" {
         Resource = "*"
       },
       {
+        Sid    = "ACMForHTTPS"
+        Effect = "Allow"
+        Action = [
+          "acm:DescribeCertificate",
+          "acm:ListCertificates",
+          "acm:GetCertificate"
+        ]
+        Resource = "*"
+      },
+      {
         Sid    = "CognitoForOIDCAuth"
         Effect = "Allow"
         Action = [
