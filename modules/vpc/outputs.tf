@@ -25,3 +25,8 @@ output "public_subnet_ipv6_cidrs" {
 output "private_subnet_ipv6_cidrs" {
   value = aws_subnet.private[*].ipv6_cidr_block
 }
+
+output "nat_gateway_public_ip" {
+  description = "EIP of the NAT gateway (null when enable_nat64 = false)"
+  value       = try(aws_eip.nat[0].public_ip, null)
+}

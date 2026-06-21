@@ -43,9 +43,9 @@ resource "aws_iam_policy" "alb_controller" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "AllowCreateServiceLinkedRole"
-        Effect = "Allow"
-        Action = "iam:CreateServiceLinkedRole"
+        Sid      = "AllowCreateServiceLinkedRole"
+        Effect   = "Allow"
+        Action   = "iam:CreateServiceLinkedRole"
         Resource = "arn:aws:iam::*:role/aws-service-role/elasticloadbalancing.amazonaws.com/AWSServiceRoleForElasticLoadBalancing"
         Condition = {
           StringEquals = {

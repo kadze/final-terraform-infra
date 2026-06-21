@@ -18,6 +18,10 @@ module "vpc" {
     "10.25.160.0/19",
     "10.25.192.0/19",
   ]
+
+  # NAT64 + DNS64: one NAT gateway covers all IPv4-only AWS APIs and internet hosts.
+  # Replaces the 5 interface VPC endpoints (ec2, ecr_api, ecr_dkr, sts, elbv2).
+  enable_nat64 = true
 }
 
 module "eks" {

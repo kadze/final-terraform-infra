@@ -24,8 +24,30 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
-# EIGW — IPv6-only outbound for private subnets. No NAT, no public IPv4.
-# This is where the per-node IPv4 charge dies.
+# EIP + NAT gateway — created only when enable_nat64 = true.
+# NAT64/DNS64 lets IPv6-only nodes reach any IPv4-only host via the
+# 64:ff9b::/96 Well-Known Prefix without per-service interface endpoints.
+resource "aws_eip" "nat" {
+  count  = var.enable_nat64 ? 1 : 0
+  domain = "vpc"
+  tags = {
+    Name        = "${local.name}-nat"
+    Environment = var.environment
+  }
+}
+
+resource "aws_nat_gateway" "main" {
+  count         = var.enable_nat64 ? 1 : 0
+  allocation_id = aws_eip.nat[0].id
+  subnet_id     = aws_subnet.public[0].id
+  depends_on    = [aws_internet_gateway.main]
+  tags = {
+    Name        = "${local.name}-nat"
+    Environment = var.environment
+  }
+}
+
+# EIGW — IPv6-only outbound for private subnets (native IPv6 / dual-stack destinations).
 resource "aws_egress_only_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
@@ -69,6 +91,9 @@ resource "aws_subnet" "private" {
 
   map_public_ip_on_launch         = false
   assign_ipv6_address_on_creation = true
+  # DNS64 synthesizes AAAA in 64:ff9b::/96 for IPv4-only hostnames so IPv6-only
+  # nodes can reach them via the NAT gateway (when enable_nat64 = true).
+  enable_dns64 = var.enable_nat64
 
   tags = {
     Name                                        = "${local.name}-private-${count.index + 1}"
@@ -98,7 +123,7 @@ resource "aws_route_table" "public" {
   }
 }
 
-# Private route table — EIGW for IPv6 egress only. No IPv4 default route (no NAT).
+# Private route table — EIGW for native IPv6 egress; NAT64 route added when enable_nat64=true.
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
@@ -111,6 +136,15 @@ resource "aws_route_table" "private" {
     Name        = "${local.name}-private-rt"
     Environment = var.environment
   }
+}
+
+# NAT64 route — sends the Well-Known Prefix (IPv4-mapped IPv6) to the NAT gateway.
+# DNS64 on the private subnets synthesizes AAAA in this prefix for IPv4-only hostnames.
+resource "aws_route" "private_nat64" {
+  count                       = var.enable_nat64 ? 1 : 0
+  route_table_id              = aws_route_table.private.id
+  destination_ipv6_cidr_block = "64:ff9b::/96"
+  nat_gateway_id              = aws_nat_gateway.main[0].id
 }
 
 resource "aws_route_table_association" "public" {

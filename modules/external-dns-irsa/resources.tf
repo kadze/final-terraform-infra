@@ -39,9 +39,9 @@ resource "aws_iam_policy" "external_dns" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "UpsertRecords"
-        Effect = "Allow"
-        Action = ["route53:ChangeResourceRecordSets"]
+        Sid      = "UpsertRecords"
+        Effect   = "Allow"
+        Action   = ["route53:ChangeResourceRecordSets"]
         Resource = "arn:aws:route53:::hostedzone/${var.hosted_zone_id}"
       },
       {

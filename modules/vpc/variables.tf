@@ -28,3 +28,9 @@ variable "private_subnet_cidrs" {
   description = "IPv4 CIDRs for the 3 private (IPv6-primary, nodes-only) subnets"
   type        = list(string)
 }
+
+variable "enable_nat64" {
+  description = "Provision a NAT gateway + DNS64 so IPv6-only nodes can reach IPv4-only AWS APIs and internet hosts without per-service interface endpoints"
+  type        = bool
+  default     = false
+}

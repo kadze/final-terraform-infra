@@ -46,9 +46,9 @@ resource "aws_iam_policy" "cert_manager" {
         Resource = "arn:aws:route53:::change/*"
       },
       {
-        Sid    = "UpsertDNSChallenge"
-        Effect = "Allow"
-        Action = ["route53:ChangeResourceRecordSets", "route53:ListResourceRecordSets"]
+        Sid      = "UpsertDNSChallenge"
+        Effect   = "Allow"
+        Action   = ["route53:ChangeResourceRecordSets", "route53:ListResourceRecordSets"]
         Resource = "arn:aws:route53:::hostedzone/${var.hosted_zone_id}"
       },
       {
