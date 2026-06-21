@@ -13,4 +13,7 @@ spec:
     apiServerEndpoint: ${cluster_endpoint}
     certificateAuthority: ${cluster_ca}
     cidr: ${cluster_service_cidr}
+  kubelet:
+    config:
+      maxPods: 110
 --==BOUNDARY==--
