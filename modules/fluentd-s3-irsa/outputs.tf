@@ -10,10 +10,10 @@ output "role_name" {
 
 output "bucket_name" {
   description = "Name of the S3 bucket receiving Fluentd log backups — set as LOG_BUCKET_NAME on the dev GitHub environment"
-  value       = aws_s3_bucket.logs.id
+  value       = local.log_bucket_name
 }
 
 output "bucket_arn" {
   description = "ARN of the S3 log backup bucket"
-  value       = aws_s3_bucket.logs.arn
+  value       = "arn:aws:s3:::${local.log_bucket_name}"
 }

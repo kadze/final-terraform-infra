@@ -25,8 +25,3 @@ variable "service_account_name" {
   default     = "fluentd"
 }
 
-variable "log_retention_days" {
-  description = "S3 object expiry in days. 30 days is the deliberate cost guard for dev — logs beyond this window are unlikely to be needed and EBS cost is already covered by Elasticsearch."
-  type        = number
-  default     = 30
-}
