@@ -105,6 +105,14 @@ module "secrets_csi_irsa_weather" {
   secret_path_prefix        = "weather/"
 }
 
+module "fluentd_s3_irsa" {
+  source = "../../../modules/fluentd-s3-irsa"
+
+  cluster_name              = module.eks.cluster_name
+  cluster_oidc_issuer_url   = module.eks.oidc_issuer
+  cluster_oidc_provider_arn = module.eks.oidc_provider_arn
+}
+
 # SharedGHATerraformRole is managed by Story 1.2 — we only attach an inline policy
 # so the platform-tools GHA workflow can read SSM params and update Route53 DNS.
 # Route53 upsert is used instead of external-dns (Story 1.5 will replace this).

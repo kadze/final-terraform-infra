@@ -12,3 +12,13 @@ output "external_dns_role_arn" {
   description = "ARN of the external-dns IRSA role — set as EXTERNAL_DNS_IAM_ROLE_ARN on the dev GitHub environment"
   value       = module.external_dns_irsa.role_arn
 }
+
+output "fluentd_s3_role_arn" {
+  description = "ARN of the Fluentd S3 IRSA role — set as FLUENTD_S3_IAM_ROLE_ARN on the dev GitHub environment"
+  value       = module.fluentd_s3_irsa.role_arn
+}
+
+output "log_bucket_name" {
+  description = "S3 bucket receiving Fluentd log backups — set as LOG_BUCKET_NAME on the dev GitHub environment"
+  value       = module.fluentd_s3_irsa.bucket_name
+}
