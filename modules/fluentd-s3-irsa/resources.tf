@@ -43,10 +43,11 @@ resource "aws_iam_policy" "fluentd_s3" {
         Resource = "arn:aws:s3:::${local.log_bucket_name}/*"
       },
       {
-        # Required by the S3 output plugin to determine the bucket region.
-        Sid      = "S3GetBucketLocation"
-        Effect   = "Allow"
-        Action   = ["s3:GetBucketLocation"]
+        # Required by fluent-plugin-s3 startup credential check (s3:ListBucket)
+        # and to determine the bucket region (s3:GetBucketLocation).
+        Sid    = "S3BucketOps"
+        Effect = "Allow"
+        Action = ["s3:GetBucketLocation", "s3:ListBucket"]
         Resource = "arn:aws:s3:::${local.log_bucket_name}"
       }
     ]
