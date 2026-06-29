@@ -22,6 +22,10 @@ output "public_subnet_ipv6_cidrs" {
   value = aws_subnet.public[*].ipv6_cidr_block
 }
 
+output "private_subnet_ipv4_cidrs" {
+  value = aws_subnet.private[*].cidr_block
+}
+
 output "private_subnet_ipv6_cidrs" {
   value = aws_subnet.private[*].ipv6_cidr_block
 }

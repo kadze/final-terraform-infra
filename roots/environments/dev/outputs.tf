@@ -23,6 +23,21 @@ output "log_bucket_name" {
   value       = module.fluentd_s3_irsa.bucket_name
 }
 
+output "versus_db_instance_identifier" {
+  description = "RDS instance identifier for Versus — consumed by Story 2.3's CloudWatch alarm module"
+  value       = module.rds_mysql_versus.db_instance_identifier
+}
+
+output "versus_db_endpoint" {
+  description = "RDS hostname for Versus — use when populating the versus/db-credentials secret"
+  value       = module.rds_mysql_versus.db_endpoint
+}
+
+output "versus_master_user_secret_arn" {
+  description = "ARN of the RDS-managed master password secret — use to retrieve the password for the app-shaped secret"
+  value       = module.rds_mysql_versus.master_user_secret_arn
+}
+
 output "versus_gha_role_arn" {
   description = "ARN of the versus GHA role — set as IAM_ROLE on the kadze-versus dev GitHub environment"
   value       = module.versus_gha_role.role_arn
