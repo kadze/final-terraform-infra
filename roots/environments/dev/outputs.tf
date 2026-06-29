@@ -22,3 +22,8 @@ output "log_bucket_name" {
   description = "S3 bucket receiving Fluentd log backups — set as LOG_BUCKET_NAME on the dev GitHub environment"
   value       = module.fluentd_s3_irsa.bucket_name
 }
+
+output "versus_gha_role_arn" {
+  description = "ARN of the versus GHA role — set as IAM_ROLE on the kadze-versus dev GitHub environment"
+  value       = module.versus_gha_role.role_arn
+}

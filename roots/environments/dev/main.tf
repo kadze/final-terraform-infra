@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 module "vpc" {
   source = "../../../modules/vpc"
 
@@ -103,6 +105,21 @@ module "secrets_csi_irsa_weather" {
   namespace                 = "weather"
   service_account_name      = "weather"
   secret_path_prefix        = "weather/"
+}
+
+module "versus_gha_role" {
+  source = "../../../modules/app-gha-role"
+
+  cluster_name             = module.eks.cluster_name
+  app_name                 = "versus"
+  github_org               = "312school"
+  github_repo              = "kadze-versus"
+  github_environment       = "dev"
+  github_oidc_provider_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com"
+  ecr_repo_arns = [
+    "arn:aws:ecr:us-east-1:${data.aws_caller_identity.current.account_id}:repository/versus-ubuntu-backend",
+    "arn:aws:ecr:us-east-1:${data.aws_caller_identity.current.account_id}:repository/versus-ubuntu-frontend",
+  ]
 }
 
 module "fluentd_s3_irsa" {
