@@ -13,6 +13,11 @@ variable "private_subnet_cidrs" {
   description = "Private subnet IPv4 CIDRs — only these can reach MySQL on port 3306"
 }
 
+variable "private_subnet_ipv6_cidrs" {
+  type        = list(string)
+  description = "Private subnet IPv6 CIDRs — pods are IPv6-only so need direct MySQL access over IPv6"
+}
+
 variable "cluster_name" {
   type        = string
   description = "EKS cluster name — used in resource naming"

@@ -33,6 +33,21 @@ resource "aws_vpc_security_group_ingress_rule" "mysql" {
   }
 }
 
+resource "aws_vpc_security_group_ingress_rule" "mysql_ipv6" {
+  for_each = toset(var.private_subnet_ipv6_cidrs)
+
+  security_group_id = aws_security_group.rds.id
+  ip_protocol       = "tcp"
+  from_port         = 3306
+  to_port           = 3306
+  cidr_ipv6         = each.value
+
+  tags = {
+    component = "database"
+    app       = var.app_name
+  }
+}
+
 resource "aws_vpc_security_group_egress_rule" "allow_all" {
   security_group_id = aws_security_group.rds.id
   ip_protocol       = "-1"

@@ -110,14 +110,15 @@ module "secrets_csi_irsa_weather" {
 module "rds_mysql_versus" {
   source = "../../../modules/rds-mysql"
 
-  vpc_id               = module.vpc.vpc_id
-  private_subnet_ids   = module.vpc.private_subnet_ids
-  private_subnet_cidrs = module.vpc.private_subnet_ipv4_cidrs
-  cluster_name         = module.eks.cluster_name
-  environment          = var.environment
-  app_name             = "versus"
-  db_name              = "versus"
-  db_username          = "versus"
+  vpc_id                    = module.vpc.vpc_id
+  private_subnet_ids        = module.vpc.private_subnet_ids
+  private_subnet_cidrs      = module.vpc.private_subnet_ipv4_cidrs
+  private_subnet_ipv6_cidrs = module.vpc.private_subnet_ipv6_cidrs
+  cluster_name              = module.eks.cluster_name
+  environment               = var.environment
+  app_name                  = "versus"
+  db_name                   = "versus"
+  db_username               = "versus"
 }
 
 module "versus_gha_role" {
