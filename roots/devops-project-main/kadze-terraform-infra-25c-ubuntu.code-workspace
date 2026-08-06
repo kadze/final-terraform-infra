@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../kadze-platform-tools-25c-ubuntu"
+		},
+		{
+			"path": "../../../kadze-versus"
+		}
+	],
+	"settings": {}
+}
