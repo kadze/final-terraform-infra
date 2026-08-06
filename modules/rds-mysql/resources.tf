@@ -34,7 +34,7 @@ resource "aws_vpc_security_group_ingress_rule" "mysql" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "mysql_ipv6" {
-  for_each = toset(var.private_subnet_ipv6_cidrs)
+  for_each = { for idx, cidr in var.private_subnet_ipv6_cidrs : tostring(idx) => cidr }
 
   security_group_id = aws_security_group.rds.id
   ip_protocol       = "tcp"
