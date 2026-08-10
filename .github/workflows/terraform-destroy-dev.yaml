@@ -5,6 +5,12 @@ name: 'Workflow - Terraform Destroy before merge'
 on:
   pull_request_review:
     types: [submitted]
+  workflow_dispatch:
+    inputs:
+      state_key:
+        description: 'Terraform state key to destroy, without .tfstate (e.g. feature/argoCD). Run `aws s3 ls s3://<account>-state-bucket-dev/feature/ --recursive` to find it.'
+        required: true
+        type: string
 
 env:
     AWS_REGION : "us-east-1"
@@ -15,9 +21,9 @@ permissions:
     contents: read    # This is required for actions/checkout
 jobs:
   destroy_dev:
-    # if PR is into main branch,
-    # and if PR approval was received
-    if: github.event.pull_request.base.ref == 'main' && github.event.review.state == 'APPROVED'
+    # runs if manually dispatched from the Actions tab, or if PR is into main branch
+    # and PR approval was received
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.base.ref == 'main' && github.event.review.state == 'APPROVED')
     runs-on: ubuntu-22.04
     # default settings to apply for all the steps
     defaults:
@@ -41,8 +47,14 @@ jobs:
       - name: Terraform Init
         run: |
           AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
-          terraform init -backend-config="bucket=${AWS_ACCOUNT_ID}-state-bucket-${ENVIRONMENT_STAGE}" -backend-config="key=${{ github.event.pull_request.head.ref }}.tfstate"
+          STATE_KEY="${{ github.event.inputs.state_key || github.event.pull_request.head.ref }}"
+          echo "Destroying state key: ${STATE_KEY}.tfstate"
+          terraform init -backend-config="bucket=${AWS_ACCOUNT_ID}-state-bucket-${ENVIRONMENT_STAGE}" -backend-config="key=${STATE_KEY}.tfstate"
 
-      # Destroy all resources before merge into main branch
+      # Destroy all resources before merge into main branch, or on manual dispatch.
+      # Note: this does not de-provision the shared ALB or its Route53 records —
+      # those live outside Terraform's reach. Run the platform-tools destroy workflow
+      # (or the local destroy-all cleanup) first, or the VPC/subnet delete below can
+      # fail with DependencyViolation.
       - name: Terraform Destroy
         run: terraform destroy -auto-approve -input=false
