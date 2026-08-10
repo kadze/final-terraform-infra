@@ -124,13 +124,10 @@ module "rds_mysql_versus" {
 module "versus_gha_role" {
   source = "../../../modules/app-gha-role"
 
-  cluster_name = module.eks.cluster_name
-  app_name     = "versus"
-  github_org   = "312school"
-  # kadze-versus is a GitHub fork; Actions push-triggered runs silently never
-  # fired on it (confirmed: registered, enabled, no rulesets — a fork-specific
-  # org policy is the best remaining explanation). Moved CI to a plain repo.
-  github_repo              = "kadze-versus-app"
+  cluster_name             = module.eks.cluster_name
+  app_name                 = "versus"
+  github_org               = "312school"
+  github_repo              = "kadze-versus"
   github_environment       = "dev"
   github_oidc_provider_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com"
   ecr_repo_arns = [
